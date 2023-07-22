@@ -72,7 +72,7 @@ public class BaseSavingsAccount
         {
             Date = date,
             Amount = amount,
-            Type = TransactionType.Deposit
+            Type = TransactionType.Withdraw
         });
         
         return this;
