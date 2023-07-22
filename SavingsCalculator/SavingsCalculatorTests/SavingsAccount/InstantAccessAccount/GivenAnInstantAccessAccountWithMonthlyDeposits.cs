@@ -53,7 +53,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                 )
                 .SetupMonthlyDeposit(startDate, endDate, 28, _monthlyDepositAmount);
 
-            _result = subject.GetAccountSummary();
+            _result = subject.GetAccountSummary(null);
         }
 
         [Test]

@@ -5,7 +5,8 @@ public enum TransactionType
     Withdraw = 0,
     Deposit = 1,
     Interest = 2,
-    OtherBenefit = 3
+    GovernmentISABenefit = 3,
+    Penalty = 4
 }
 
 public class Transaction

@@ -16,7 +16,7 @@ public class InstantAccessAccount : BaseSavingsAccount
         _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
     }
 
-    protected override void CalculateFinance()
+    protected override void CalculateFinance(DateOnly? dateTo)
     {
         // First clear current transaction log of interest and benefit payments, and order by date ascending
         Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
@@ -25,7 +25,7 @@ public class InstantAccessAccount : BaseSavingsAccount
         var interestAndBenefitsTransactions = new List<Transaction>();
         // Now loop through months and years etc
         var dateFrom = Transactions.First().Date;
-        var dateTo = Transactions.Last().Date;
+        dateTo ??= Transactions.Last().Date;
         
         var currentDate = dateFrom;
         double totalBalance = 0;
@@ -36,7 +36,7 @@ public class InstantAccessAccount : BaseSavingsAccount
                 .Where(x => x.Date.Month == currentDate.Month && x.Date.Year == currentDate.Year)
                 .OrderBy(x => x.Date)
                 .ToList();
-            
+
             var depositsForMonth = transactionsForMonth.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
             var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
             

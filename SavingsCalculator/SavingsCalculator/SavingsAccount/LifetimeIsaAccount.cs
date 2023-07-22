@@ -64,4 +64,58 @@ public class LifetimeIsaAccount : BaseSavingsAccount
 
         return false;
     }
+    
+    protected override void CalculateFinance(DateOnly? dateTo)
+    {
+        // First clear current transaction log of interest and benefit payments, and order by date ascending
+        Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw or TransactionType.Penalty).ToList();
+        Transactions = Transactions.OrderBy(x => x.Date).ToList();
+
+        // Now loop through months and years etc
+        var dateFrom = Transactions.First().Date;
+        dateTo ??= Transactions.Last().Date;
+        
+        var currentDate = dateFrom;
+        double totalBalance = 0;
+
+        while (currentDate < dateTo)
+        {
+            // Here savings account specific calculation logic goes
+            var transactionsForMonth = Transactions
+                .Where(x => x.Date.Month == currentDate.Month && x.Date.Year == currentDate.Year)
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            var monthlyIn = transactionsForMonth.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
+            var monthlyOut = transactionsForMonth.Where(x => x.Type is 
+                TransactionType.Withdraw or 
+                TransactionType.Penalty
+                ).Sum(x => x.Amount);
+            
+            var balanceForMonth = monthlyIn - monthlyOut;
+            var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
+
+            totalBalance += balanceForMonth + interestForMonth;
+            Transactions.Add(new Transaction
+            {
+                Type = TransactionType.Interest,
+                Date = new DateOnly(currentDate.Year, currentDate.Month, 28),
+                Amount = interestForMonth
+            });
+            
+            currentDate = currentDate.AddMonths(1);
+        }
+
+        // Now add government 25%
+        var bonus = totalBalance * 0.25; // Bonus only applied once
+        
+        Transactions.Add(new Transaction
+        {
+            Type = TransactionType.GovernmentISABenefit,
+            Date = dateTo.Value,
+            Amount = bonus
+        });
+        
+        Transactions = Transactions.OrderBy(x => x.Date).ToList();
+    } 
 }

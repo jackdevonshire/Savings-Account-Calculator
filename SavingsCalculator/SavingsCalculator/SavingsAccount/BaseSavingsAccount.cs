@@ -21,21 +21,39 @@ public class BaseSavingsAccount
         };
     }
 
-    protected virtual void CalculateFinance()
+    protected virtual void CalculateFinance(DateOnly? dateTo)
     {
         throw new NotImplementedException();
     }
 
-    public virtual AccountSummary GetAccountSummary()
+    public virtual AccountSummary GetAccountSummary(DateOnly? dateTo)
     {
-        CalculateFinance();
+        CalculateFinance(dateTo);
 
-        var deposits = Transactions.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
-        var withdrawals = Transactions.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
-        var finalBalance = deposits - withdrawals;
+        var deposits = Transactions.Where(x => x.Type is 
+                TransactionType.Deposit or 
+                TransactionType.Interest or 
+                TransactionType.GovernmentISABenefit
+            );
+        
+        var withdrawals = Transactions.Where(x => x.Type is 
+            TransactionType.Withdraw or 
+            TransactionType.Penalty
+            );
 
-        var totalInterestAndBenefits = Transactions
-            .Where(x => x.Type is TransactionType.Interest or TransactionType.OtherBenefit).Sum(x => x.Amount);
+        if (dateTo != null)
+        {
+            deposits = deposits.Where(x => x.Date <= dateTo);
+            withdrawals = withdrawals.Where(x => x.Date <= dateTo);
+        }
+        
+        var finalBalance = deposits.Sum(x => x.Amount) - withdrawals.Sum(x => x.Amount);
+
+        var totalInterestAndBenefits = Transactions.Where(x => x.Type is 
+            TransactionType.Interest or 
+            TransactionType.GovernmentISABenefit or 
+            TransactionType.Penalty
+            ).Sum(x => x.Amount);
 
         return new AccountSummary
         {
