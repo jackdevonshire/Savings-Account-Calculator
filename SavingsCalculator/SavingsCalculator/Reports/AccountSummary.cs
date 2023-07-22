@@ -6,7 +6,8 @@ public class AccountSummary
     {
         Transactions = new List<Transaction>();
     }
-    
+
+    public string Account;
     public DateOnly DateFrom;
     public DateOnly DateTo;
     

@@ -29,7 +29,7 @@ public class InstantAccessAccount : BaseSavingsAccount
         
         var currentDate = dateFrom;
         double totalBalance = 0;
-        while (currentDate <= dateTo)
+        while (currentDate < dateTo)
         {
             // Here savings account specific calculation logic goes
             var transactionsForMonth = Transactions

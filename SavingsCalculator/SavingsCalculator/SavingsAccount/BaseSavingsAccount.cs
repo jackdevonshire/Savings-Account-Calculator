@@ -50,6 +50,9 @@ public class BaseSavingsAccount
     
     public virtual BaseSavingsAccount Deposit(DateOnly date, double amount)
     {
+        if (amount < 0)
+            throw new Exception("Cannot deposit a negative amount");
+        
         Transactions.Add(new Transaction
         {
             Date = date,
@@ -62,6 +65,9 @@ public class BaseSavingsAccount
     
     public virtual BaseSavingsAccount Withdraw(DateOnly date, double amount)
     {
+        if (amount < 0)
+            throw new Exception("Cannot withdraw a negative amount");
+        
         Transactions.Add(new Transaction
         {
             Date = date,
@@ -74,12 +80,15 @@ public class BaseSavingsAccount
 
     public virtual BaseSavingsAccount SetupMonthlyDeposit(DateOnly dateFrom, DateOnly dateTo, int dayOfMonth, double amount)
     {
+        if (amount < 0)
+            throw new Exception("Cannot deposit a negative amount");
+        
         if (dayOfMonth is < 1 or > 31)
             throw new Exception("Invalid day of the month provided");
         
         DateOnly currentDate = dateFrom;
         
-        while (currentDate <= dateTo)
+        while (currentDate < dateTo)
         {
             Transactions.Add(new Transaction
             {
