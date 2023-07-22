@@ -78,6 +78,9 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         var currentDate = dateFrom;
         double totalBalance = 0;
 
+        double combinedGovBonusForEachTaxYear = 0;
+        var currentTaxYear = GetTaxYearForTransaction(currentDate);
+
         while (currentDate < dateTo)
         {
             // Here savings account specific calculation logic goes
@@ -85,14 +88,18 @@ public class LifetimeIsaAccount : BaseSavingsAccount
                 .Where(x => x.Date.Month == currentDate.Month && x.Date.Year == currentDate.Year)
                 .OrderBy(x => x.Date)
                 .ToList();
-
-            var monthlyIn = transactionsForMonth.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
+            
+            var monthlyDeposits = transactionsForMonth.Where(x => x.Type is 
+                TransactionType.Deposit or 
+                TransactionType.Interest or 
+                TransactionType.GovernmentISABenefit
+                ).Sum(x => x.Amount);
             var monthlyOut = transactionsForMonth.Where(x => x.Type is 
                 TransactionType.Withdraw or 
                 TransactionType.Penalty
                 ).Sum(x => x.Amount);
             
-            var balanceForMonth = monthlyIn - monthlyOut;
+            var balanceForMonth = monthlyDeposits - monthlyOut;
             var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
 
             totalBalance += balanceForMonth + interestForMonth;
@@ -102,19 +109,43 @@ public class LifetimeIsaAccount : BaseSavingsAccount
                 Date = new DateOnly(currentDate.Year, currentDate.Month, 28),
                 Amount = interestForMonth
             });
-            
-            currentDate = currentDate.AddMonths(1);
-        }
 
-        // Now add government 25%
-        var bonus = totalBalance * 0.25; // Bonus only applied once
-        
-        Transactions.Add(new Transaction
-        {
-            Type = TransactionType.GovernmentISABenefit,
-            Date = dateTo.Value,
-            Amount = bonus
-        });
+            currentDate = currentDate.AddMonths(1);
+            
+            // If next month is in a new tax year, add the tax bonus for the past tax year
+            var newTaxYear = GetTaxYearForTransaction(currentDate);
+            if (newTaxYear != currentTaxYear)
+            {
+                var taxYearIn = transactionsForMonth // This does NOT include previous government benefits, as these are NOT compounded
+                    .Where(x => x.Type is 
+                        TransactionType.Deposit or 
+                        TransactionType.Interest &&
+                        x.Date >= currentTaxYear.StartOfTaxYear &&
+                        x.Date <= currentTaxYear.EndOfTaxYear
+                    )
+                    .Sum(x => x.Amount);
+                
+                var taxYearOut = transactionsForMonth
+                    .Where(x => x.Type is 
+                        TransactionType.Withdraw or 
+                        TransactionType.Penalty &&
+                        x.Date >= currentTaxYear.StartOfTaxYear &&
+                        x.Date <= currentTaxYear.EndOfTaxYear
+                    ).Sum(x => x.Amount);
+
+                var balanceForTaxYearExcludingPrevBenefits = taxYearIn - taxYearOut;
+                var benefit = balanceForTaxYearExcludingPrevBenefits * 0.25;
+                totalBalance += benefit;
+                Transactions.Add(new Transaction
+                {
+                    Type = TransactionType.GovernmentISABenefit,
+                    Date = currentTaxYear.EndOfTaxYear,
+                    Amount = benefit
+                });
+            }
+
+            currentTaxYear = newTaxYear;
+        }
         
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
     } 
