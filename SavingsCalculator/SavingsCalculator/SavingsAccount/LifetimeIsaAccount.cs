@@ -17,7 +17,7 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
     }
     
-    public TaxYear GetTaxYearForTransaction(DateOnly transactionDate)
+    public TaxYear GetTaxYearForDate(DateOnly transactionDate)
     {
         /* Tax years run differently to normal years, and are typically run from the 6th April from one year, to the 5th April the next
          * God knows why... https://www.gov.uk/self-assessment-tax-returns
@@ -47,7 +47,7 @@ public class LifetimeIsaAccount : BaseSavingsAccount
 
     public bool CanDeposit(DateOnly transactionDate, double depositAmount)
     {
-        var currentTaxYear = GetTaxYearForTransaction(transactionDate);
+        var currentTaxYear = GetTaxYearForDate(transactionDate);
         var transactionsForTaxYear = Transactions.Where(x =>
             x.Date >= currentTaxYear.StartOfTaxYear &&
             x.Date <= currentTaxYear.EndOfTaxYear
@@ -79,7 +79,7 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         double totalBalance = 0;
 
         double combinedGovBonusForEachTaxYear = 0;
-        var currentTaxYear = GetTaxYearForTransaction(currentDate);
+        var currentTaxYear = GetTaxYearForDate(currentDate);
 
         while (currentDate < dateTo)
         {
@@ -113,7 +113,7 @@ public class LifetimeIsaAccount : BaseSavingsAccount
             currentDate = currentDate.AddMonths(1);
             
             // If next month is in a new tax year, add the tax bonus for the past tax year
-            var newTaxYear = GetTaxYearForTransaction(currentDate);
+            var newTaxYear = GetTaxYearForDate(currentDate);
             if (newTaxYear != currentTaxYear)
             {
                 var taxYearIn = transactionsForMonth // This does NOT include previous government benefits, as these are NOT compounded

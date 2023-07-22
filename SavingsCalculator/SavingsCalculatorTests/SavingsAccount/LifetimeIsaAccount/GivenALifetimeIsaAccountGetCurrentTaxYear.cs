@@ -58,7 +58,7 @@ namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
 
             foreach (var testCase in _testCases)
             {
-                testCase.Result = subject.GetTaxYearForTransaction(testCase.TransactionDate);
+                testCase.Result = subject.GetTaxYearForDate(testCase.TransactionDate);
             }
         }
 
