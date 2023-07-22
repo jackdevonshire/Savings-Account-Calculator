@@ -6,11 +6,11 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
     // Change Annual Equivalent Rate
     [TestFixture(5, 100, 12, 105, 5)]
     [TestFixture(10, 100, 12, 110, 10)]
-    [TestFixture(50, 100, 12, 163, 63)]
+    [TestFixture(50, 100, 12, 150, 50)]
     // Change Starting Amount
     [TestFixture(5, 200, 12, 210, 10)]
     [TestFixture(5, 400, 12, 420, 20)]
-    [TestFixture(5, 800, 12, 841, 41)]
+    [TestFixture(5, 800, 12, 840, 40)]
     // Changing Duration - result values are rounded in the test
     [TestFixture(5, 100, 1, 100, 0)]
     [TestFixture(5, 100, 3, 101, 1)]
@@ -59,13 +59,13 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
         [Test]
         public void ThenTheFinalBalanceAsExpected()
         {
-            Assert.That(Math.Round(_result.FinalBalance), Is.EqualTo(_expectedBalance));
+            Assert.That(Math.Round(_result.FinalBalance, MidpointRounding.AwayFromZero), Is.EqualTo(_expectedBalance));
         }
         
         [Test]
         public void ThenTheGainedInterestAsExpected()
         {
-            Assert.That(Math.Round(_result.TotalCumulativeInterestAndBenefits), Is.EqualTo(_expectedInterest));
+            Assert.That(Math.Round(_result.TotalCumulativeInterestAndBenefits, MidpointRounding.AwayFromZero), Is.EqualTo(_expectedInterest));
         }
     }
 }

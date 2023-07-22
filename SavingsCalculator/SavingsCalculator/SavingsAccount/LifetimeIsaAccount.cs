@@ -78,31 +78,28 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         var currentDate = dateFrom;
         double totalBalance = 0;
 
-        double combinedGovBonusForEachTaxYear = 0;
+        double totalGovBonusForEachTaxYear = 0;
         var currentTaxYear = GetTaxYearForDate(currentDate);
-
+        double totalInterestForYear = 0;
         while (currentDate < dateTo)
         {
-            // Here savings account specific calculation logic goes
             var transactionsForMonth = Transactions
                 .Where(x => x.Date.Month == currentDate.Month && x.Date.Year == currentDate.Year)
                 .OrderBy(x => x.Date)
                 .ToList();
             
-            var monthlyDeposits = transactionsForMonth.Where(x => x.Type is 
-                TransactionType.Deposit or 
-                TransactionType.Interest or 
-                TransactionType.GovernmentISABenefit
+            var monthlyIn = transactionsForMonth.Where(x => x.Type is 
+                TransactionType.Deposit // Government added benefits are accounted for later
                 ).Sum(x => x.Amount);
             var monthlyOut = transactionsForMonth.Where(x => x.Type is 
                 TransactionType.Withdraw or 
                 TransactionType.Penalty
                 ).Sum(x => x.Amount);
             
-            var balanceForMonth = monthlyDeposits - monthlyOut;
-            var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
-
-            totalBalance += balanceForMonth + interestForMonth;
+            var balanceForMonthExcludingInterest = monthlyIn - monthlyOut;
+            var interestForMonth = (totalBalance + balanceForMonthExcludingInterest) * ((_annualEquivalentRateAsPercentage / 100) / 12);
+            totalInterestForYear += interestForMonth;
+            totalBalance += balanceForMonthExcludingInterest;
             Transactions.Add(new Transaction
             {
                 Type = TransactionType.Interest,
@@ -110,22 +107,27 @@ public class LifetimeIsaAccount : BaseSavingsAccount
                 Amount = interestForMonth
             });
 
-            currentDate = currentDate.AddMonths(1);
+            var newDate = currentDate.AddMonths(1);
+            if (newDate.Year != currentDate.Year) // If going in to a new year, add accumulated interest to balance so that this can be compounded
+            {
+                totalBalance += totalInterestForYear;
+                totalInterestForYear = 0;
+            }
+            currentDate = newDate;
             
             // If next month is in a new tax year, add the tax bonus for the past tax year
             var newTaxYear = GetTaxYearForDate(currentDate);
-            if (newTaxYear != currentTaxYear)
+            if (newTaxYear.StartOfTaxYear != currentTaxYear.StartOfTaxYear)
             {
-                var taxYearIn = transactionsForMonth // This does NOT include previous government benefits, as these are NOT compounded
+                var taxYearIn = Transactions // This does NOT include previous benefits, or interest gained
                     .Where(x => x.Type is 
-                        TransactionType.Deposit or 
-                        TransactionType.Interest &&
+                        TransactionType.Deposit &&
                         x.Date >= currentTaxYear.StartOfTaxYear &&
                         x.Date <= currentTaxYear.EndOfTaxYear
                     )
                     .Sum(x => x.Amount);
                 
-                var taxYearOut = transactionsForMonth
+                var taxYearOut = Transactions
                     .Where(x => x.Type is 
                         TransactionType.Withdraw or 
                         TransactionType.Penalty &&

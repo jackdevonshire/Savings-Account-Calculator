@@ -4,20 +4,20 @@ using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
 {
     // Change Annual Equivalent Rate
-    [TestFixture(5, 100, 12, 1233, 33)]
-    [TestFixture(10, 100, 12, 1267, 67)]
-    [TestFixture(50, 100, 12, 1580, 380)]
+    [TestFixture(5, 100, 12, 1232, 32)]
+    [TestFixture(10, 100, 12, 1265, 65)]
+    [TestFixture(50, 100, 12, 1525, 325)]
     // Change Deposit Amountr
-    [TestFixture(5, 200, 12, 2466, 66)]
-    [TestFixture(5, 400, 12, 4932, 132)]
-    [TestFixture(5, 800, 12, 9864, 264)]
+    [TestFixture(5, 200, 12, 2465, 65)]
+    [TestFixture(5, 400, 12, 4930, 130)]
+    [TestFixture(5, 800, 12, 9860, 260)]
     // Changing Duration - result values are rounded in the test
     [TestFixture(5, 100, 1, 100, 0)]
-    [TestFixture(5, 100, 3, 303, 3)]
+    [TestFixture(5, 100, 3, 302, 2)]
     [TestFixture(5, 100, 6, 609, 9)]
-    [TestFixture(5, 100, 24, 2529, 129)]
-    [TestFixture(5, 100, 36, 3891, 291)]
-    [TestFixture(5, 100, 48, 5324, 524)]
+    [TestFixture(5, 100, 24, 2527, 127)]
+    [TestFixture(5, 100, 36, 3885, 285)]
+    [TestFixture(5, 100, 48, 5312, 512)]
     
     [Parallelizable]
     public class GivenAnInstantAccessAccountWithMonthlyDeposits

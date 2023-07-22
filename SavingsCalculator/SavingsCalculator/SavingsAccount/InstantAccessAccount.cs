@@ -22,13 +22,14 @@ public class InstantAccessAccount : BaseSavingsAccount
         Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
 
-        var interestAndBenefitsTransactions = new List<Transaction>();
         // Now loop through months and years etc
         var dateFrom = Transactions.First().Date;
         dateTo ??= Transactions.Last().Date;
         
         var currentDate = dateFrom;
+        
         double totalBalance = 0;
+        double totalInterestForYear = 0;
         while (currentDate < dateTo)
         {
             // Here savings account specific calculation logic goes
@@ -43,7 +44,9 @@ public class InstantAccessAccount : BaseSavingsAccount
             var balanceForMonth = depositsForMonth - withdrawalsForMonth;
             var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
 
-            totalBalance += balanceForMonth + interestForMonth;
+            totalBalance += balanceForMonth;
+            totalInterestForYear += interestForMonth;
+            
             Transactions.Add(new Transaction
             {
                 Type = TransactionType.Interest,
@@ -51,7 +54,13 @@ public class InstantAccessAccount : BaseSavingsAccount
                 Amount = interestForMonth
             });
             
-            currentDate = currentDate.AddMonths(1);
+            var newDate = currentDate.AddMonths(1);
+            if (newDate.Year != currentDate.Year) // If going in to a new year, add accumulated interest to balance so that this can be compounded
+            {
+                totalBalance += totalInterestForYear;
+                totalInterestForYear = 0;
+            }
+            currentDate = newDate;
         }
 
         // Finally add new interest and benefits transactions
