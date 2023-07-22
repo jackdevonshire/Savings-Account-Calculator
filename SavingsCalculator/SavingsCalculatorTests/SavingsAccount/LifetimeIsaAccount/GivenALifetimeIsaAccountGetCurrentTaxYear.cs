@@ -1,3 +1,4 @@
+using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
 namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
@@ -7,11 +8,11 @@ namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
         public DateOnly TransactionDate;
         public DateOnly ExpectedTaxYearStart;
         public DateOnly ExpectedTaxYearEnd;
-        public Tuple<DateOnly, DateOnly> Result;
+        public TaxYear Result;
 
         public TaxYearTestCase()
         {
-            Result = new Tuple<DateOnly, DateOnly>(new DateOnly(), new DateOnly());
+            Result = new TaxYear();
         }
     }
     
@@ -66,8 +67,8 @@ namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
         {
             foreach (var testCase in _testCases)
             {
-                Assert.That(testCase.Result.Item1, Is.EqualTo(testCase.ExpectedTaxYearStart));
-                Assert.That(testCase.Result.Item2, Is.EqualTo(testCase.ExpectedTaxYearEnd));
+                Assert.That(testCase.Result.StartOfTaxYear, Is.EqualTo(testCase.ExpectedTaxYearStart));
+                Assert.That(testCase.Result.EndOfTaxYear, Is.EqualTo(testCase.ExpectedTaxYearEnd));
             }
         }
     }

@@ -1,4 +1,5 @@
 using SavingsCalculator.Reports;
+using SavingsCalculator.Types;
 
 namespace SavingsCalculator.SavingsAccount;
 
@@ -16,7 +17,7 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
     }
     
-    public Tuple<DateOnly, DateOnly> GetTaxYearForTransaction(DateOnly transactionDate)
+    public TaxYear GetTaxYearForTransaction(DateOnly transactionDate)
     {
         /* Tax years run differently to normal years, and are typically run from the 6th April from one year, to the 5th April the next
          * God knows why... https://www.gov.uk/self-assessment-tax-returns
@@ -37,15 +38,19 @@ public class LifetimeIsaAccount : BaseSavingsAccount
             endOfTaxYear = new DateOnly(transactionDate.Year, 4, 5);
         }
 
-        return new Tuple<DateOnly, DateOnly>(startOfTaxYear, endOfTaxYear);
+        return new TaxYear
+        {
+            StartOfTaxYear = startOfTaxYear,
+            EndOfTaxYear = endOfTaxYear
+        };
     }
 
     public bool CanDeposit(DateOnly transactionDate, double depositAmount)
     {
         var currentTaxYear = GetTaxYearForTransaction(transactionDate);
         var transactionsForTaxYear = Transactions.Where(x =>
-            x.Date >= currentTaxYear.Item1 &&
-            x.Date <= currentTaxYear.Item2
+            x.Date >= currentTaxYear.StartOfTaxYear &&
+            x.Date <= currentTaxYear.EndOfTaxYear
         ).ToList();
 
         var totalDeposits = transactionsForTaxYear.Where(x => x.Type == TransactionType.Deposit).Sum(x => x.Amount);
