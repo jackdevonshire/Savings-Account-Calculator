@@ -1,8 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using SavingsCalculator.SavingsAccount;
-
-Console.WriteLine("Hello, World!");
+﻿using SavingsCalculator.SavingsAccount;
 
 var test = new InstantAccessAccount("Test", new DateOnly(2023, 01, 01), 0, 5);
 test

@@ -4,6 +4,7 @@ public class AccountSummary
 {
     public AccountSummary()
     {
+        Account = "";
         Transactions = new List<Transaction>();
     }
 

@@ -2,10 +2,10 @@ namespace SavingsCalculator.Reports;
 
 public enum TransactionType
 {
-    WITHDRAW = 0,
-    DEPOSIT = 1,
-    INTEREST = 2,
-    OTHER_BENEFIT = 3
+    Withdraw = 0,
+    Deposit = 1,
+    Interest = 2,
+    OtherBenefit = 3
 }
 
 public class Transaction

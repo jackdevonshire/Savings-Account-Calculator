@@ -4,19 +4,19 @@ namespace SavingsCalculator.SavingsAccount;
 
 public class BaseSavingsAccount
 {
-    protected string AccountName;
+    private readonly string _accountName;
     protected List<Transaction> Transactions;
 
     protected BaseSavingsAccount(string accountName, DateOnly openingDate, double openingBalance)
     {
-        AccountName = accountName;
+        _accountName = accountName;
         Transactions = new List<Transaction>
         {
             new Transaction
             {
                 Amount = openingBalance,
                 Date = openingDate,
-                Type = TransactionType.DEPOSIT
+                Type = TransactionType.Deposit
             }
         };
     }
@@ -30,16 +30,16 @@ public class BaseSavingsAccount
     {
         CalculateFinance();
 
-        var deposits = Transactions.Where(x => x.Type != TransactionType.WITHDRAW).Sum(x => x.Amount);
-        var withdrawals = Transactions.Where(x => x.Type == TransactionType.WITHDRAW).Sum(x => x.Amount);
+        var deposits = Transactions.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
+        var withdrawals = Transactions.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
         var finalBalance = deposits - withdrawals;
 
         var totalInterestAndBenefits = Transactions
-            .Where(x => x.Type is TransactionType.INTEREST or TransactionType.OTHER_BENEFIT).Sum(x => x.Amount);
+            .Where(x => x.Type is TransactionType.Interest or TransactionType.OtherBenefit).Sum(x => x.Amount);
 
         return new AccountSummary
         {
-            Account = AccountName,
+            Account = _accountName,
             DateFrom = Transactions.First().Date,
             DateTo = Transactions.Last().Date,
             Transactions = Transactions,
@@ -57,7 +57,7 @@ public class BaseSavingsAccount
         {
             Date = date,
             Amount = amount,
-            Type = TransactionType.DEPOSIT
+            Type = TransactionType.Deposit
         });
 
         return this;
@@ -72,7 +72,7 @@ public class BaseSavingsAccount
         {
             Date = date,
             Amount = amount,
-            Type = TransactionType.DEPOSIT
+            Type = TransactionType.Deposit
         });
         
         return this;
@@ -94,7 +94,7 @@ public class BaseSavingsAccount
             {
                 Date = new DateOnly(currentDate.Year, currentDate.Month, dayOfMonth),
                 Amount = amount,
-                Type = TransactionType.DEPOSIT
+                Type = TransactionType.Deposit
             });
             
             currentDate = currentDate.AddMonths(1);

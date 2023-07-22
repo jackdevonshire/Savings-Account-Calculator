@@ -4,7 +4,7 @@ namespace SavingsCalculator.SavingsAccount;
 
 public class InstantAccessAccount : BaseSavingsAccount
 {
-    private double _annualEquivalentRateAsPercentage;
+    private readonly double _annualEquivalentRateAsPercentage;
 
     public InstantAccessAccount(
         string accountName, 
@@ -19,7 +19,7 @@ public class InstantAccessAccount : BaseSavingsAccount
     protected override void CalculateFinance()
     {
         // First clear current transaction log of interest and benefit payments, and order by date ascending
-        Transactions = Transactions.Where(x => x.Type is TransactionType.DEPOSIT or TransactionType.WITHDRAW).ToList();
+        Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
 
         var interestAndBenefitsTransactions = new List<Transaction>();
@@ -37,8 +37,8 @@ public class InstantAccessAccount : BaseSavingsAccount
                 .OrderBy(x => x.Date)
                 .ToList();
             
-            var depositsForMonth = transactionsForMonth.Where(x => x.Type != TransactionType.WITHDRAW).Sum(x => x.Amount);
-            var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.WITHDRAW).Sum(x => x.Amount);
+            var depositsForMonth = transactionsForMonth.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
+            var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
             
             var balanceForMonth = depositsForMonth - withdrawalsForMonth;
             var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
@@ -46,7 +46,7 @@ public class InstantAccessAccount : BaseSavingsAccount
             totalBalance += balanceForMonth + interestForMonth;
             Transactions.Add(new Transaction
             {
-                Type = TransactionType.INTEREST,
+                Type = TransactionType.Interest,
                 Date = new DateOnly(currentDate.Year, currentDate.Month, 28),
                 Amount = interestForMonth
             });
