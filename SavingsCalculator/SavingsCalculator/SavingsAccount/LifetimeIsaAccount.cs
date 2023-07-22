@@ -1,3 +1,5 @@
+using SavingsCalculator.Reports;
+
 namespace SavingsCalculator.SavingsAccount;
 
 public class LifetimeIsaAccount : BaseSavingsAccount
@@ -36,5 +38,25 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         }
 
         return new Tuple<DateOnly, DateOnly>(startOfTaxYear, endOfTaxYear);
+    }
+
+    public bool CanDeposit(DateOnly transactionDate, double depositAmount)
+    {
+        var currentTaxYear = GetTaxYearForTransaction(transactionDate);
+        var transactionsForTaxYear = Transactions.Where(x =>
+            x.Date >= currentTaxYear.Item1 &&
+            x.Date <= currentTaxYear.Item2
+        ).ToList();
+
+        var totalDeposits = transactionsForTaxYear.Where(x => x.Type == TransactionType.Deposit).Sum(x => x.Amount);
+        var totalWithdrawals = transactionsForTaxYear.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
+        var totalBalance = totalDeposits - totalWithdrawals;
+
+        var newBalance = totalBalance + depositAmount;
+
+        if (newBalance <= 4000)
+            return true;
+
+        return false;
     }
 }
