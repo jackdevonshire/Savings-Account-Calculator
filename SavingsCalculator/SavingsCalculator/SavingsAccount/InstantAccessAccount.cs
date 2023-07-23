@@ -47,7 +47,9 @@ public class InstantAccessAccount : BaseSavingsAccount
                 .OrderBy(x => x.Date)
                 .ToList();
 
-            var depositsForMonth = transactionsForMonth.Where(x => x.Type != TransactionType.Withdraw).Sum(x => x.Amount);
+            var depositsForMonth = transactionsForMonth.Where(x => x.Type is 
+                TransactionType.Deposit
+                ).Sum(x => x.Amount);
             var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
             
             var balanceForMonth = depositsForMonth - withdrawalsForMonth;
@@ -64,7 +66,8 @@ public class InstantAccessAccount : BaseSavingsAccount
             });
             
             var newDate = currentDate.AddMonths(1);
-            if (newDate.Year == payInterestOn.Year && newDate.Month == payInterestOn.Month) // If going in to a new year, add accumulated interest to balance so that this can be compounded
+            // If account birthday, pay interest into balance so that it can be compounded
+            if (newDate.Year == payInterestOn.Year && newDate.Month == payInterestOn.Month)
             {
                 totalBalance += totalInterestForYear;
                 totalInterestForYear = 0;
