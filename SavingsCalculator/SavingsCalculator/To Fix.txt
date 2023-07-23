@@ -1,7 +1,0 @@
-
-The AER for both the Lifetime ISA and Instant Access is incorrect.
-
-The AER is not compounded each month. It is however compounded yearly.
-
-First need to figure out what is going wrong with the Instant Access, see if I can fix it
-Then continue work to get Lifetime ISA in a good spot
