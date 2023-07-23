@@ -22,6 +22,15 @@ public class InstantAccessAccount : BaseSavingsAccount
         Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
 
+        /* Get the starting month so we know when to pay interest into account for it to compound
+         * Based on the AER, interest should roughly be paid on the account birthday. Whilst not
+         * entirely accurate, it's a very good estimation and is how most online calculators appear to
+         * be doing it. This only really has an impact when we start seeing large, large sums of money -
+         * and in that case you should probably be seeing a financial advisor, and not using a random
+         * program found on Github.
+         */
+        var payInterestOn = Transactions.First().Date.AddYears(1);
+        
         // Now loop through months and years etc
         var dateFrom = Transactions.First().Date;
         dateTo ??= Transactions.Last().Date;
@@ -55,13 +64,14 @@ public class InstantAccessAccount : BaseSavingsAccount
             });
             
             var newDate = currentDate.AddMonths(1);
-            if (newDate.Year != currentDate.Year) // If going in to a new year, add accumulated interest to balance so that this can be compounded
+            if (newDate.Year == payInterestOn.Year && newDate.Month == payInterestOn.Month) // If going in to a new year, add accumulated interest to balance so that this can be compounded
             {
                 totalBalance += totalInterestForYear;
                 totalInterestForYear = 0;
+                payInterestOn = payInterestOn.AddYears(1);
             }
             currentDate = newDate;
-        }
+;        }
 
         // Finally add new interest and benefits transactions
         Transactions = Transactions.OrderBy(x => x.Date).ToList();

@@ -70,7 +70,9 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         // First clear current transaction log of interest and benefit payments, and order by date ascending
         Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw or TransactionType.Penalty).ToList();
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
-
+        
+        var payInterestOn = Transactions.First().Date.AddYears(1);
+        
         // Now loop through months and years etc
         var dateFrom = Transactions.First().Date;
         dateTo ??= Transactions.Last().Date;
@@ -108,10 +110,12 @@ public class LifetimeIsaAccount : BaseSavingsAccount
             });
 
             var newDate = currentDate.AddMonths(1);
-            if (newDate.Year != currentDate.Year) // If going in to a new year, add accumulated interest to balance so that this can be compounded
+            // If accounts birthday next month, add accumulated interest to balance so that this can be compounded
+            if (newDate.Year == payInterestOn.Year && newDate.Month == payInterestOn.Month)
             {
                 totalBalance += totalInterestForYear;
                 totalInterestForYear = 0;
+                payInterestOn = payInterestOn.AddYears(1);
             }
             currentDate = newDate;
             
