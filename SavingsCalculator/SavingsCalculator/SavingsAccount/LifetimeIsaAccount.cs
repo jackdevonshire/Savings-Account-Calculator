@@ -92,7 +92,11 @@ public class LifetimeIsaAccount : BaseSavingsAccount
     protected override void CalculateFinance(DateOnly? dateTo)
     {
         // First clear current transaction log of interest and benefit payments, and order by date ascending
-        Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
+        Transactions = Transactions.Where(x => x.Type is 
+            TransactionType.Deposit or 
+            TransactionType.Withdraw or 
+            TransactionType.Penalty
+        ).ToList();
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
 
         /* Get the starting month so we know when to pay interest into account for it to compound
@@ -126,7 +130,11 @@ public class LifetimeIsaAccount : BaseSavingsAccount
                 TransactionType.Deposit or
                 TransactionType.GovernmentISABenefit
             ).Sum(x => x.Amount);
-            var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
+            
+            var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type is 
+                TransactionType.Withdraw or 
+                TransactionType.Penalty
+            ).Sum(x => x.Amount);
 
             var balanceForMonth = depositsForMonth - withdrawalsForMonth;
             var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
@@ -185,4 +193,83 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         // Finally add new interest and benefits transactions
         Transactions = Transactions.OrderBy(x => x.Date).ToList();
     } 
+    
+    public override BaseSavingsAccount Deposit(DateOnly date, double amount)
+    {
+        if (amount < 0)
+            throw new Exception("Cannot deposit a negative amount");
+
+        if (!CanDeposit(date, amount))
+            throw new Exception("Cannot deposit over £4000 within the same tax year");
+        
+        Transactions.Add(new Transaction
+        {
+            Date = date,
+            Amount = amount,
+            Type = TransactionType.Deposit
+        });
+
+        return this;
+    }
+    
+    public override BaseSavingsAccount Withdraw(DateOnly date, double amount)
+    {
+        if (amount < 0)
+            throw new Exception("Cannot withdraw a negative amount");
+        
+        // Calculate ISA specific withdrawal fee
+        var withdrawalFee = amount * 0.25;
+        CalculateFinance(date);
+        var balance = GetAccountSummary(date).FinalBalance;
+        if ((balance - amount - withdrawalFee) < 0)
+            throw new Exception(
+                "Withdrawing this amount incurs a 25% fee, which would put your account balance below zero");
+        
+        Transactions.Add(new Transaction
+        {
+            Date = date,
+            Amount = withdrawalFee,
+            Type = TransactionType.Penalty
+        });
+        
+        Transactions.Add(new Transaction
+        {
+            Date = date,
+            Amount = amount,
+            Type = TransactionType.Withdraw
+        });
+        
+        return this;
+    }
+
+    public override BaseSavingsAccount SetupMonthlyDeposit(DateOnly dateFrom, DateOnly dateTo, int dayOfMonth, double amount)
+    {
+        if (amount < 0)
+            throw new Exception("Cannot deposit a negative amount");
+        
+        if (dayOfMonth is < 1 or > 31)
+            throw new Exception("Invalid day of the month provided");
+        
+        DateOnly currentDate = dateFrom;
+
+        List<Transaction> deposits = new List<Transaction>();
+        while (currentDate < dateTo)
+        {
+            if (!CanDeposit(currentDate, amount))
+                throw new Exception("Cannot deposit over £4000 within the same tax year");
+            
+            deposits.Add(new Transaction
+            {
+                Date = new DateOnly(currentDate.Year, currentDate.Month, dayOfMonth),
+                Amount = amount,
+                Type = TransactionType.Deposit
+            });
+            
+            currentDate = currentDate.AddMonths(1);
+        }
+        
+        Transactions.AddRange(deposits);
+        
+        return this;
+    }
 }
