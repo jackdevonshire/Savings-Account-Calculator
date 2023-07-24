@@ -7,8 +7,8 @@ I figured out the perfect allocation of my funds on a monthly basis, to maximise
 to research potential returns on accounts in the future, I want a faster way to determine the exact benefits of different types of savings accounts. Hence
 this project being born.
 
-## What Does This Not Do?
-I'm no financial advisor, so naturally as I develop this application there will be things and rules that I discover, that I deem outside the scope of this project. These rules will not be modelled in my project. The following list reflects rules that my project does NOT model. The rules may become outdated as time goes on.
+## Limitations
+I'm no financial advisor, so naturally as I develop this application there will be things and rules that I discover. Below is a list of rules / information for various accounts that this project does NOT model.
 
 - Lifetime ISA / Regular ISA Rules (https://www.gov.uk/lifetime-isa)
   - Deposits
@@ -16,10 +16,13 @@ I'm no financial advisor, so naturally as I develop this application there will 
     - Maximum age limit of 50 years old, after this age you cannot deposit into an ISA
     - Maximum starting age limit of 40 years old, you must make your first payment into an ISA before this age
   - Withdrawals
-    - This program will model all withdrawals with a 25% withdrawal charge, this is because Lifetime ISA's are meant for long term saving. In reality, the withdrawal charge will be applied, unless you are:
+    - This program will model ALL withdrawals with a 25% withdrawal charge, this is because Lifetime ISA's are meant for long term saving. In reality, the withdrawal charge will be applied, unless you are:
         - Buying your first house that costs under 450k
         - Aged 60 or over
         - Terminally ill and have less than 12 months to live
+     
+- Tax
+  - I may aswell switch career if I become an expert on how savings are taxed. Tax is not modelled by this program.
    
 ## Disclaimer
 This is just a personal portfolio project. It may contain issues, and it's models of accounts may be incorrect or outdated, so please don't use it to actually plan your savings...It would probably be a bad idea without verifying the numbers yourself.
