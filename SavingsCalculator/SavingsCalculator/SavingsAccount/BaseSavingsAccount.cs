@@ -51,9 +51,8 @@ public class BaseSavingsAccount
 
         var totalInterestAndBenefits = Transactions.Where(x => x.Type is 
             TransactionType.Interest or 
-            TransactionType.GovernmentISABenefit or 
-            TransactionType.Penalty
-            ).Sum(x => x.Amount);
+            TransactionType.GovernmentISABenefit
+        ).Sum(x => x.Amount);
 
         return new AccountSummary
         {
