@@ -72,21 +72,17 @@ public class LifetimeIsaAccount : BaseSavingsAccount
     public bool CanDeposit(DateOnly transactionDate, double depositAmount)
     {
         var currentTaxYear = GetTaxYearForDate(transactionDate);
-        var transactionsForTaxYear = Transactions.Where(x =>
-            x.Date >= currentTaxYear.StartOfTaxYear &&
-            x.Date <= currentTaxYear.EndOfTaxYear
-        ).ToList();
-
-        var totalDeposits = transactionsForTaxYear.Where(x => x.Type == TransactionType.Deposit).Sum(x => x.Amount);
-        var totalWithdrawals = transactionsForTaxYear
-            .Where(x => x.Type is TransactionType.Withdraw or TransactionType.Penalty)
+        var depositsForTaxYear = Transactions
+            .Where(x =>
+                x.Date >= currentTaxYear.StartOfTaxYear &&
+                x.Date <= currentTaxYear.EndOfTaxYear &&
+                x.Type == TransactionType.Deposit
+            )
             .Sum(x => x.Amount);
+
+        var totalDeposits = depositsForTaxYear + depositAmount;
         
-        var totalBalance = totalDeposits - totalWithdrawals;
-
-        var newBalance = totalBalance + depositAmount;
-
-        if (newBalance <= 4000)
+        if (totalDeposits <= 4000)
             return true;
 
         return false;
