@@ -78,7 +78,10 @@ public class LifetimeIsaAccount : BaseSavingsAccount
         ).ToList();
 
         var totalDeposits = transactionsForTaxYear.Where(x => x.Type == TransactionType.Deposit).Sum(x => x.Amount);
-        var totalWithdrawals = transactionsForTaxYear.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
+        var totalWithdrawals = transactionsForTaxYear
+            .Where(x => x.Type is TransactionType.Withdraw or TransactionType.Penalty)
+            .Sum(x => x.Amount);
+        
         var totalBalance = totalDeposits - totalWithdrawals;
 
         var newBalance = totalBalance + depositAmount;
