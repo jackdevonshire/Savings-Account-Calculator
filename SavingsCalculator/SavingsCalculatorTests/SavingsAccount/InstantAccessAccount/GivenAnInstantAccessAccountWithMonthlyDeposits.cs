@@ -1,4 +1,5 @@
 using SavingsCalculator.Reports;
+using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
 namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
@@ -49,11 +50,13 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     "Instant Access Account",
                     startDate,
                     0,
-                    _aer
+                    _aer,
+                    InterestPaidType.Monthly,
+                    CompoundType.Annualy
                 )
                 .SetupMonthlyDeposit(startDate, endDate, 28, _monthlyDepositAmount);
 
-            _result = subject.GetAccountSummary(null);
+            _result = subject.GetAccountSummary(endDate);
         }
 
         [Test]

@@ -1,3 +1,4 @@
+using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
 namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
@@ -27,7 +28,9 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     "Instant Access Account",
                     startDate,
                     100,
-                    5
+                    5,
+                    InterestPaidType.Monthly,
+                    CompoundType.Annualy
                 );
 
             if (_expectingError)

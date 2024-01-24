@@ -1,4 +1,5 @@
 using SavingsCalculator.Reports;
+using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
 namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
@@ -49,7 +50,9 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     "Instant Access Account",
                     startDate,
                     _openingBalance,
-                    _aer
+                    _aer,
+                    InterestPaidType.Monthly,
+                    CompoundType.Annualy
                 )
                 .Deposit(endDate, 0);
 

@@ -1,82 +1,152 @@
 using SavingsCalculator.Reports;
+using SavingsCalculator.Types;
 
 namespace SavingsCalculator.SavingsAccount;
 
 public class InstantAccessAccount : BaseSavingsAccount
 {
     private readonly double _annualEquivalentRateAsPercentage;
+    private readonly InterestPaidType _interestPaidType;
+    private readonly CompoundType _compoundType;
+    private double _actualInterestRate;
 
     public InstantAccessAccount(
         string accountName, 
         DateOnly openingDate,
         double openingBalance, 
-        double annualEquivalentRateAsPercentage
-) : base(accountName, openingDate, openingBalance)
+        double annualEquivalentRateAsPercentage,
+        InterestPaidType interestPaidType = InterestPaidType.Monthly,
+        CompoundType compoundType = CompoundType.Monthly
+        ) : base(accountName, openingDate, openingBalance)
     {
         _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
+        _interestPaidType = interestPaidType;
+        _compoundType = compoundType;
+        _actualInterestRate = GetActualInterestRate();
+    }
+
+    private double GetActualInterestRate()
+    {
+        switch (_interestPaidType)
+        {
+            case InterestPaidType.Monthly:
+                return (_annualEquivalentRateAsPercentage / 100) / 12;
+            case InterestPaidType.Annualy:
+                return (_annualEquivalentRateAsPercentage / 100) / 1;
+            default:
+                return 0;
+        }
+    }
+
+    private bool CompoundInterestToday(DateOnly dateInterestLastCompounded, DateOnly currentDate)
+    {
+        switch (_compoundType)
+        {
+            case CompoundType.Daily:
+                return dateInterestLastCompounded.AddDays(1) == currentDate;
+            case CompoundType.Monthly:
+                return dateInterestLastCompounded.AddMonths(1) == currentDate;
+            case CompoundType.Annualy:
+                return dateInterestLastCompounded.AddYears(1) == currentDate;
+            default:
+                return false;
+        }
+    }
+    
+    private bool PayInterestToday(DateOnly dateLastInterestPaid, DateOnly currentDate)
+    {
+        switch (_interestPaidType)
+        {
+            case InterestPaidType.Monthly:
+                return dateLastInterestPaid.AddMonths(1) == currentDate;
+            case InterestPaidType.Annualy:
+                return dateLastInterestPaid.AddYears(1) == currentDate;
+            default:
+                return false;
+        }
     }
 
     protected override void CalculateFinance(DateOnly? dateTo)
     {
         // First clear current transaction log of interest and benefit payments, and order by date ascending
-        Transactions = Transactions.Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw).ToList();
-        Transactions = Transactions.OrderBy(x => x.Date).ToList();
-
-        /* Get the starting month so we know when to pay interest into account for it to compound
-         * Based on the AER, interest should roughly be paid on the account birthday. Whilst not
-         * entirely accurate, it's a very good estimation and is how most online calculators appear to
-         * be doing it. This only really has an impact when we start seeing large, large sums of money -
-         * and in that case you should probably be seeing a financial advisor, and not using a random
-         * program found on Github.
-         */
-        var payInterestOn = Transactions.First().Date.AddYears(1);
+        Transactions = Transactions
+            .Where(x => x.Type is TransactionType.Deposit or TransactionType.Withdraw)
+            .OrderBy(x => x.Date)
+            .ToList();
         
-        // Now loop through months and years etc
-        var dateFrom = Transactions.First().Date;
+        // Exit if no transactions at all
+        if (Transactions.Count == 0)
+            return;
+        
+        // Now get transactions we want to loop through
         dateTo ??= Transactions.Last().Date;
+        var transactionsToCalculate = Transactions;
+        transactionsToCalculate = transactionsToCalculate.Where(x => x.Date <= dateTo.Value).ToList();
         
-        var currentDate = dateFrom;
+        // Exit if no transactions for selected period
+        if (transactionsToCalculate.Count == 0)
+            return;
         
-        double totalBalance = 0;
-        double totalInterestForYear = 0;
-        while (currentDate < dateTo)
+        // Now initialise essential variables
+        var openingDate = Transactions.First().Date;
+        var currentDate = openingDate;
+        var dateLastInterestPaid = openingDate;
+        var dateInterestLastCompounded = openingDate;
+        
+        // Variables representing accounts balance
+        double balanceToCalculateInterestOn = 0;
+        double interestWaitingToCompound = 0;
+
+        while (currentDate <= dateTo)
         {
-            // Here savings account specific calculation logic goes
-            var transactionsForMonth = Transactions
-                .Where(x => x.Date.Month == currentDate.Month && x.Date.Year == currentDate.Year)
-                .OrderBy(x => x.Date)
+            // Get transactions for the current date
+            var transactionsForDate = Transactions
+                .Where(x => x.Date == currentDate)
                 .ToList();
-
-            var depositsForMonth = transactionsForMonth.Where(x => x.Type is 
-                TransactionType.Deposit
-                ).Sum(x => x.Amount);
-            var withdrawalsForMonth = transactionsForMonth.Where(x => x.Type == TransactionType.Withdraw).Sum(x => x.Amount);
             
-            var balanceForMonth = depositsForMonth - withdrawalsForMonth;
-            var interestForMonth = (totalBalance + balanceForMonth) * ((_annualEquivalentRateAsPercentage / 100) / 12);
-
-            totalBalance += balanceForMonth;
-            totalInterestForYear += interestForMonth;
+            // Get balance for the current date, excluding interest
+            var depositsForPeriod = transactionsForDate
+                .Where(x => x.Type is TransactionType.Deposit)
+                .Sum(x => x.Amount);
             
-            Transactions.Add(new Transaction
+            var withdrawalsForPeriod  = transactionsForDate
+                .Where(x => x.Type is TransactionType.Withdraw)
+                .Sum(x => x.Amount);
+            
+            var balanceForPeriod = depositsForPeriod - withdrawalsForPeriod;
+            balanceToCalculateInterestOn += balanceForPeriod;
+            
+            // Find out whether or not interest should be paid today
+            var payInterestToday = PayInterestToday(dateLastInterestPaid, currentDate);
+            if (payInterestToday)
             {
-                Type = TransactionType.Interest,
-                Date = new DateOnly(currentDate.Year, currentDate.Month, 28),
-                Amount = interestForMonth
-            });
-            
-            var newDate = currentDate.AddMonths(1);
-            // If account birthday, pay interest into balance so that it can be compounded
-            if (newDate.Year == payInterestOn.Year && newDate.Month == payInterestOn.Month)
-            {
-                totalBalance += totalInterestForYear;
-                totalInterestForYear = 0;
-                payInterestOn = payInterestOn.AddYears(1);
+                // Calculate interest to be paid and add it to the account
+                dateLastInterestPaid = currentDate;
+                var interestToAdd = balanceToCalculateInterestOn * _actualInterestRate;
+                interestWaitingToCompound += interestToAdd;
+                
+                Transactions.Add(new Transaction
+                {
+                    Date = currentDate,
+                    Amount = interestToAdd,
+                    Type = TransactionType.Interest
+                });
             }
-            currentDate = newDate;
-;        }
 
+            if (CompoundInterestToday(dateInterestLastCompounded, currentDate))
+            {
+                balanceToCalculateInterestOn += interestWaitingToCompound;
+                interestWaitingToCompound = 0;
+                dateInterestLastCompounded = currentDate;
+            }
+            
+            currentDate = currentDate.AddDays(1);
+        }
+        
+        
         // Finally add new interest and benefits transactions
-        Transactions = Transactions.OrderBy(x => x.Date).ToList();
+        Transactions = Transactions
+            .OrderBy(x => x.Date)
+            .ToList();
     }
 }
