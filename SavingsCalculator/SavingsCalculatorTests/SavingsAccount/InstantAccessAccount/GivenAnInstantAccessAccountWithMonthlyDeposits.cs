@@ -52,7 +52,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     0,
                     _aer,
                     InterestPaidType.Monthly,
-                    CompoundType.Annualy
+                    CompoundType.Annually
                 )
                 .SetupMonthlyDeposit(startDate, endDate, 28, _monthlyDepositAmount);
 
