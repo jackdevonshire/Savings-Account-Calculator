@@ -30,7 +30,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     100,
                     5,
                     InterestPaidType.Monthly,
-                    CompoundType.Annualy
+                    CompoundType.Annually
                 );
 
             if (_expectingError)

@@ -4,5 +4,5 @@ public enum CompoundType
 {
     Daily = 0,
     Monthly = 1,
-    Annualy = 2,
+    Annually = 2,
 }

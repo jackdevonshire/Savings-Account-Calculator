@@ -52,7 +52,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
                     _openingBalance,
                     _aer,
                     InterestPaidType.Monthly,
-                    CompoundType.Annualy
+                    CompoundType.Annually
                 )
                 .Deposit(endDate, 0);
 

@@ -46,7 +46,7 @@ public class InstantAccessAccount : BaseSavingsAccount
                 return dateInterestLastCompounded.AddDays(1) == currentDate;
             case CompoundType.Monthly:
                 return dateInterestLastCompounded.AddMonths(1) == currentDate;
-            case CompoundType.Annualy:
+            case CompoundType.Annually:
                 return dateInterestLastCompounded.AddYears(1) == currentDate;
             default:
                 return false;
