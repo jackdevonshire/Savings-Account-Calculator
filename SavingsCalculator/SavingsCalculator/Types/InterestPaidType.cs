@@ -2,6 +2,7 @@ namespace SavingsCalculator.Types;
 
 public enum InterestPaidType
 {
-    Monthly = 0,
-    Annually = 1,
+    Daily = 0,
+    Monthly = 1,
+    Annually = 2,
 }

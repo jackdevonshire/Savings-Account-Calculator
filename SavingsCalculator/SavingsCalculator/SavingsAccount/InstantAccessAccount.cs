@@ -29,9 +29,11 @@ public class InstantAccessAccount : BaseSavingsAccount
     {
         switch (_interestPaidType)
         {
+            case InterestPaidType.Daily:
+                return (_annualEquivalentRateAsPercentage / 100) / 365;
             case InterestPaidType.Monthly:
                 return (_annualEquivalentRateAsPercentage / 100) / 12;
-            case InterestPaidType.Annualy:
+            case InterestPaidType.Annually:
                 return (_annualEquivalentRateAsPercentage / 100) / 1;
             default:
                 return 0;
@@ -59,7 +61,7 @@ public class InstantAccessAccount : BaseSavingsAccount
         {
             case InterestPaidType.Monthly:
                 return dateLastInterestPaid.AddMonths(1) == currentDate;
-            case InterestPaidType.Annualy:
+            case InterestPaidType.Annually:
                 return dateLastInterestPaid.AddYears(1) == currentDate;
             default:
                 return false;
