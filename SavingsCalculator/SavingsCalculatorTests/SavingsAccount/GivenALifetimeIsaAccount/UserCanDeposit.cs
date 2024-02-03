@@ -1,9 +1,9 @@
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
 {
     [Parallelizable]
-    public class GivenALifetimeIsaAccountCheckCanDeposit
+    public class UserCanDeposit
     {
         private Account _subject;
 

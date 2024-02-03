@@ -1,10 +1,10 @@
 using SavingsCalculator.SavingsAccount;
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
 {
     [Parallelizable]
-    public class GivenALifetimeIsaCanWithdrawWithPenalty
+    public class UserCanWithdrawWithPenalty
     {
         private BaseSavingsAccount _subject;
         private DateOnly _openingDate = new DateOnly(2023, 04, 06);

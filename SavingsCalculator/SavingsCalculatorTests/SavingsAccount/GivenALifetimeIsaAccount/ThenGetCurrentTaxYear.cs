@@ -1,7 +1,7 @@
 using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
 {
     public class TaxYearTestCase
     {
@@ -17,11 +17,11 @@ namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
     }
     
     [Parallelizable]
-    public class GivenALifetimeIsaAccountGetCurrentTaxYear
+    public class ThenGetCurrentTaxYear
     {
         private readonly List<TaxYearTestCase> _testCases;
 
-        public GivenALifetimeIsaAccountGetCurrentTaxYear()
+        public ThenGetCurrentTaxYear()
         {
             _testCases = new List<TaxYearTestCase>
             {
