@@ -1,3 +1,4 @@
+using SavingsCalculator.Helpers;
 using SavingsCalculator.Reports;
 using SavingsCalculator.Types;
 
@@ -5,10 +6,9 @@ namespace SavingsCalculator.SavingsAccount;
 
 public class InstantAccessAccount : BaseSavingsAccount
 {
-    private readonly double _annualEquivalentRateAsPercentage;
     private readonly InterestPaidType _interestPaidType;
     private readonly CompoundType _compoundType;
-    private double _actualInterestRate;
+    private readonly double _actualInterestRate;
 
     public InstantAccessAccount(
         string accountName, 
@@ -16,56 +16,12 @@ public class InstantAccessAccount : BaseSavingsAccount
         double openingBalance, 
         double annualEquivalentRateAsPercentage,
         InterestPaidType interestPaidType = InterestPaidType.Monthly,
-        CompoundType compoundType = CompoundType.Monthly
+        CompoundType compoundType = CompoundType.Annually
         ) : base(accountName, openingDate, openingBalance)
     {
-        _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
         _interestPaidType = interestPaidType;
         _compoundType = compoundType;
-        _actualInterestRate = GetActualInterestRate();
-    }
-
-    private double GetActualInterestRate()
-    {
-        switch (_interestPaidType)
-        {
-            case InterestPaidType.Daily:
-                return (_annualEquivalentRateAsPercentage / 100) / 365;
-            case InterestPaidType.Monthly:
-                return (_annualEquivalentRateAsPercentage / 100) / 12;
-            case InterestPaidType.Annually:
-                return (_annualEquivalentRateAsPercentage / 100) / 1;
-            default:
-                return 0;
-        }
-    }
-
-    private bool CompoundInterestToday(DateOnly dateInterestLastCompounded, DateOnly currentDate)
-    {
-        switch (_compoundType)
-        {
-            case CompoundType.Daily:
-                return dateInterestLastCompounded.AddDays(1) == currentDate;
-            case CompoundType.Monthly:
-                return dateInterestLastCompounded.AddMonths(1) == currentDate;
-            case CompoundType.Annually:
-                return dateInterestLastCompounded.AddYears(1) == currentDate;
-            default:
-                return false;
-        }
-    }
-    
-    private bool PayInterestToday(DateOnly dateLastInterestPaid, DateOnly currentDate)
-    {
-        switch (_interestPaidType)
-        {
-            case InterestPaidType.Monthly:
-                return dateLastInterestPaid.AddMonths(1) == currentDate;
-            case InterestPaidType.Annually:
-                return dateLastInterestPaid.AddYears(1) == currentDate;
-            default:
-                return false;
-        }
+        _actualInterestRate = InterestHelper.GetActualInterestRate(_interestPaidType, annualEquivalentRateAsPercentage);
     }
 
     protected override void CalculateFinance(DateOnly? dateTo)
@@ -119,7 +75,7 @@ public class InstantAccessAccount : BaseSavingsAccount
             balanceToCalculateInterestOn += balanceForPeriod;
             
             // Find out whether or not interest should be paid today
-            var payInterestToday = PayInterestToday(dateLastInterestPaid, currentDate);
+            var payInterestToday = InterestHelper.PayInterestToday(_interestPaidType, dateLastInterestPaid, currentDate);
             if (payInterestToday)
             {
                 // Calculate interest to be paid and add it to the account
@@ -135,7 +91,7 @@ public class InstantAccessAccount : BaseSavingsAccount
                 });
             }
 
-            if (CompoundInterestToday(dateInterestLastCompounded, currentDate))
+            if (InterestHelper.CompoundInterestToday(_compoundType, dateInterestLastCompounded, currentDate))
             {
                 balanceToCalculateInterestOn += interestWaitingToCompound;
                 interestWaitingToCompound = 0;
