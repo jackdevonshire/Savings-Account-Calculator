@@ -1,18 +1,18 @@
 using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenAnInstantAccessAccount
 {   
-    [TestFixture(100, false)] // Can withdraw a positive amount
-    [TestFixture(-1, true)] // Cannot withdraw negative amount
+    [TestFixture(100, false)] // Can deposit a positive amount
+    [TestFixture(-1, true)] // Cannot deposit negative amount
     
     [Parallelizable]
-    public class GivenAnInstantAccessAccountUserCanWithdrawMoney
+    public class UserCanDepositMoney
     {
         private readonly double _amount;
         private readonly bool _expectingError;
 
-        public GivenAnInstantAccessAccountUserCanWithdrawMoney(double amount, bool expectingError)
+        public UserCanDepositMoney(double amount, bool expectingError)
         {
             _expectingError = expectingError;
             _amount = amount;
@@ -35,11 +35,13 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
 
             if (_expectingError)
             {
-                Assert.Throws<Exception>(() => subject.Withdraw(endDate, _amount));
+                Assert.Throws<Exception>(() => subject.Deposit(endDate, _amount));
+                Assert.Throws<Exception>(() => subject.SetupMonthlyDeposit(startDate, endDate, 28, _amount));
             }
             else
             {
-                Assert.DoesNotThrow(() => subject.Withdraw(endDate, _amount));
+                Assert.DoesNotThrow(() => subject.Deposit(endDate, _amount));
+                Assert.DoesNotThrow(() => subject.SetupMonthlyDeposit(startDate, endDate, 28, _amount));
             }
         }
     }

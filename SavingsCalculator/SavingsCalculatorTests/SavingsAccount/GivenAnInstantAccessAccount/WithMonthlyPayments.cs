@@ -2,13 +2,13 @@ using SavingsCalculator.Reports;
 using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenAnInstantAccessAccount
 {
     // Change Annual Equivalent Rate
     [TestFixture(5, 100, 12, 1232, 32)]
     [TestFixture(10, 100, 12, 1265, 65)]
     [TestFixture(50, 100, 12, 1525, 325)]
-    // Change Deposit Amountr
+    // Change Deposit Amount
     [TestFixture(5, 200, 12, 2465, 65)]
     [TestFixture(5, 400, 12, 4930, 130)]
     [TestFixture(5, 800, 12, 9860, 260)]
@@ -21,7 +21,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
     [TestFixture(5, 100, 48, 5312, 512)]
     
     [Parallelizable]
-    public class GivenAnInstantAccessAccountWithMonthlyDeposits
+    public class WithMonthlyPayments
     {
         private readonly double _aer;
         private readonly double _expectedBalance;
@@ -30,7 +30,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
         private readonly int _monthsOpen;
         private AccountSummary _result;
 
-        public GivenAnInstantAccessAccountWithMonthlyDeposits(double aer, double monthlyDepositAmount, int monthsOpen, double expectedBalance, double expectedInterest)
+        public WithMonthlyPayments(double aer, double monthlyDepositAmount, int monthsOpen, double expectedBalance, double expectedInterest)
         {
             _expectedInterest = expectedInterest;
             _expectedBalance = expectedBalance;

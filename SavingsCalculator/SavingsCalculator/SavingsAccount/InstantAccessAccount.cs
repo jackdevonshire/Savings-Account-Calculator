@@ -16,7 +16,7 @@ public class InstantAccessAccount : BaseSavingsAccount
         double openingBalance, 
         double annualEquivalentRateAsPercentage,
         InterestPaidType interestPaidType = InterestPaidType.Monthly,
-        CompoundType compoundType = CompoundType.Monthly
+        CompoundType compoundType = CompoundType.Annually
         ) : base(accountName, openingDate, openingBalance)
     {
         _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
@@ -59,6 +59,8 @@ public class InstantAccessAccount : BaseSavingsAccount
     {
         switch (_interestPaidType)
         {
+            case InterestPaidType.Daily:
+                return true;
             case InterestPaidType.Monthly:
                 return dateLastInterestPaid.AddMonths(1) == currentDate;
             case InterestPaidType.Annually:

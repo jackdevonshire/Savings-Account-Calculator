@@ -2,7 +2,7 @@ using SavingsCalculator.Reports;
 using SavingsCalculator.Types;
 using Account = SavingsCalculator.SavingsAccount.InstantAccessAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenAnInstantAccessAccount.InterestConfigurations
 {
     // Change Annual Equivalent Rate
     [TestFixture(5, 100, 12, 105, 5)]
@@ -15,13 +15,13 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
     // Changing Duration - result values are rounded in the test
     [TestFixture(5, 100, 1, 100, 0)]
     [TestFixture(5, 100, 3, 101, 1)]
-    [TestFixture(5, 100, 6, 103, 3)]
+    [TestFixture(5, 100, 6, 102, 2)]
     [TestFixture(5, 100, 24, 110, 10)]
     [TestFixture(5, 100, 36, 116, 16)]
     [TestFixture(5, 100, 48, 122, 22)]
     
     [Parallelizable]
-    public class GivenAnInstantAccessAccount
+    public class WithInterestPaidDailyAndCompoundedAnnually
     {
         private readonly double _aer;
         private readonly double _expectedBalance;
@@ -30,7 +30,7 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
         private readonly int _monthsOpen;
         private AccountSummary _result;
 
-        public GivenAnInstantAccessAccount(double aer, double openingBalance, int monthsOpen, double expectedBalance, double expectedInterest)
+        public WithInterestPaidDailyAndCompoundedAnnually(double aer, double openingBalance, int monthsOpen, double expectedBalance, double expectedInterest)
         {
             _expectedInterest = expectedInterest;
             _expectedBalance = expectedBalance;
@@ -47,16 +47,15 @@ namespace SavingsCalculatorTests.SavingsAccount.InstantAccessAccount
             var endDate = startDate.AddMonths(_monthsOpen);
 
             var subject = new Account(
-                    "Instant Access Account",
-                    startDate,
-                    _openingBalance,
-                    _aer,
-                    InterestPaidType.Monthly,
-                    CompoundType.Annually
-                )
-                .Deposit(endDate, 0);
+                "Instant Access Account",
+                startDate,
+                _openingBalance,
+                _aer,
+                InterestPaidType.Daily,
+                CompoundType.Annually
+            );
 
-            _result = subject.GetAccountSummary(null);
+            _result = subject.GetAccountSummary(endDate);
         }
 
         [Test]
