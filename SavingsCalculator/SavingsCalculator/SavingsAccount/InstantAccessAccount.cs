@@ -6,10 +6,9 @@ namespace SavingsCalculator.SavingsAccount;
 
 public class InstantAccessAccount : BaseSavingsAccount
 {
-    private readonly double _annualEquivalentRateAsPercentage;
     private readonly InterestPaidType _interestPaidType;
     private readonly CompoundType _compoundType;
-    private double _actualInterestRate;
+    private readonly double _actualInterestRate;
 
     public InstantAccessAccount(
         string accountName, 
@@ -20,10 +19,9 @@ public class InstantAccessAccount : BaseSavingsAccount
         CompoundType compoundType = CompoundType.Annually
         ) : base(accountName, openingDate, openingBalance)
     {
-        _annualEquivalentRateAsPercentage = annualEquivalentRateAsPercentage;
         _interestPaidType = interestPaidType;
         _compoundType = compoundType;
-        _actualInterestRate = InterestHelper.GetActualInterestRate(_interestPaidType, _annualEquivalentRateAsPercentage);
+        _actualInterestRate = InterestHelper.GetActualInterestRate(_interestPaidType, annualEquivalentRateAsPercentage);
     }
 
     protected override void CalculateFinance(DateOnly? dateTo)
