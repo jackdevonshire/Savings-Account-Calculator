@@ -1,7 +1,6 @@
 using SavingsCalculator.Types;
-using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
+namespace SavingsCalculatorTests.Helpers.InterestAndTaxHelper
 {
     public class TaxYearTestCase
     {
@@ -17,11 +16,11 @@ namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
     }
     
     [Parallelizable]
-    public class ThenGetCurrentTaxYear
+    public class GetCurrentTaxYearTests
     {
         private readonly List<TaxYearTestCase> _testCases;
 
-        public ThenGetCurrentTaxYear()
+        public GetCurrentTaxYearTests()
         {
             _testCases = new List<TaxYearTestCase>
             {
@@ -49,16 +48,9 @@ namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
         [SetUp]
         public void Setup()
         {
-            var subject = new Account(
-                "Lifetime ISA",
-                new DateOnly(2023, 01, 12),
-                0,
-                5
-            );
-
             foreach (var testCase in _testCases)
             {
-                testCase.Result = subject.GetTaxYearForDate(testCase.TransactionDate);
+                testCase.Result = SavingsCalculator.Helpers.InterestAndTaxHelper.GetTaxYearForDate(testCase.TransactionDate);
             }
         }
 
