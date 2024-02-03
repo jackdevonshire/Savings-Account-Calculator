@@ -21,7 +21,7 @@ public class InstantAccessAccount : BaseSavingsAccount
     {
         _interestPaidType = interestPaidType;
         _compoundType = compoundType;
-        _actualInterestRate = InterestHelper.GetActualInterestRate(_interestPaidType, annualEquivalentRateAsPercentage);
+        _actualInterestRate = InterestAndTaxHelper.GetActualInterestRate(_interestPaidType, annualEquivalentRateAsPercentage);
     }
 
     protected override void CalculateFinance(DateOnly? dateTo)
@@ -75,7 +75,7 @@ public class InstantAccessAccount : BaseSavingsAccount
             balanceToCalculateInterestOn += balanceForPeriod;
             
             // Find out whether or not interest should be paid today
-            var payInterestToday = InterestHelper.PayInterestToday(_interestPaidType, dateLastInterestPaid, currentDate);
+            var payInterestToday = InterestAndTaxHelper.PayInterestToday(_interestPaidType, dateLastInterestPaid, currentDate);
             if (payInterestToday)
             {
                 // Calculate interest to be paid and add it to the account
@@ -91,7 +91,7 @@ public class InstantAccessAccount : BaseSavingsAccount
                 });
             }
 
-            if (InterestHelper.CompoundInterestToday(_compoundType, dateInterestLastCompounded, currentDate))
+            if (InterestAndTaxHelper.CompoundInterestToday(_compoundType, dateInterestLastCompounded, currentDate))
             {
                 balanceToCalculateInterestOn += interestWaitingToCompound;
                 interestWaitingToCompound = 0;

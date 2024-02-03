@@ -1,10 +1,10 @@
 using SavingsCalculator.SavingsAccount;
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
 {
     [Parallelizable]
-    public class GivenALifetimeIsaAccountWithNoAer
+    public class WhenAccountHasNoAer
     {
         private BaseSavingsAccount _subject;
 

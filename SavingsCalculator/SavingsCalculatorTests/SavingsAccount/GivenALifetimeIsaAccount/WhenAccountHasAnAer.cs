@@ -1,10 +1,10 @@
 using SavingsCalculator.SavingsAccount;
 using Account = SavingsCalculator.SavingsAccount.LifetimeIsaAccount;
 
-namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
+namespace SavingsCalculatorTests.SavingsAccount.GivenALifetimeIsaAccount
 {
     [Parallelizable]
-    public class GivenALifetimeIsaAccountWithAnAer
+    public class WhenAccountHasAnAer
     {
         private BaseSavingsAccount _subject;
 
@@ -27,24 +27,24 @@ namespace SavingsCalculatorTests.SavingsAccount.LifetimeIsaAccount
         }
 
         [Test]
-        public void ThenOnThe28thAprilInterestIsPaid()
+        public void ThenOnThe6thOfMayInterestIsPaid()
         {
-            var summary = _subject.GetAccountSummary(new DateOnly(2023, 04, 28));
+            var summary = _subject.GetAccountSummary(new DateOnly(2023, 05, 6));
             Assert.That(Math.Round(summary.FinalBalance), Is.EqualTo(4017));
         }
         
         [Test]
-        public void ThenOnThe28thMayInterestIsPaidAswellAsBonusForPreviousBonusPeriod()
+        public void ThenOnThe28thMayGovernmentBonusIsPaid()
         {
             var summary = _subject.GetAccountSummary(new DateOnly(2023, 05, 28));
-            Assert.That(Math.Round(summary.FinalBalance), Is.EqualTo(5033));
+            Assert.That(Math.Round(summary.FinalBalance), Is.EqualTo(5017));
         }
         
         [Test]
-        public void ThenOnThe28thJuneInterestIsAccruedAgainstTheBalanceIncludingTheGovernmentBonus()
+        public void ThenOnThe6thJuneInterestIsPaid()
         {
-            var summary = _subject.GetAccountSummary(new DateOnly(2023, 06, 28));
-            Assert.That(Math.Round(summary.FinalBalance), Is.EqualTo(5054));
+            var summary = _subject.GetAccountSummary(new DateOnly(2023, 06, 6));
+            Assert.That(Math.Round(summary.FinalBalance), Is.EqualTo(5037));
         }
     }
 }
