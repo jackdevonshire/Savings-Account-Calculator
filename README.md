@@ -16,13 +16,10 @@ I'm no financial advisor, so naturally as I develop this application there will 
     - Maximum age limit of 50 years old, after this age you cannot deposit into an ISA
     - Maximum starting age limit of 40 years old, you must make your first payment into an ISA before this age
   - Withdrawals
-    - This program will model ALL withdrawals with a 25% withdrawal charge, this is because Lifetime ISA's are meant for long term saving. In reality, the withdrawal charge will be applied, unless you are:
-        - Buying your first house that costs under 450k
-        - Aged 60 or over
-        - Terminally ill and have less than 12 months to live
+    - This program will model ALL withdrawals with a 25% withdrawal charge. In reality, this charge is not applied if the withdrawal reason meets the LISA rules (e.g. buying a house)
      
 - Tax
   - I may aswell switch career if I become an expert on how savings are taxed. Tax is not modelled by this program.
-   
-## Disclaimer
-This is just a personal portfolio project. It may contain issues, and it's models of accounts may be incorrect or outdated, so please don't use it to actually plan your savings...It would probably be a bad idea without verifying the numbers yourself.
+ 
+- Extra Assumptions:
+  - This program adds interest and compounds it based on an accounts opening date, in actuality this could be different based on the account provider.
